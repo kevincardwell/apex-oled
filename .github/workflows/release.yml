@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Debian 12's glibc (2.36) lacks the pidfd_spawnp that Rust's std binds to when it
+    # can, so the binary only needs glibc 2.34+: Ubuntu 22.04, Debian 12, Fedora 35, RHEL 9.
+    container: rust:1-bookworm
+    steps:
+      - uses: actions/checkout@v5
+      - run: cargo test --locked
+      - run: cargo build --release --locked
+      - name: Package
+        run: |
+          name="apex-oled-${GITHUB_REF_NAME}-x86_64-linux"
+          mkdir -p "$name/tools"
+          cp target/release/apex-oled install.sh README.md LICENSE CHANGELOG.md "$name/"
+          cp -r systemd udev "$name/"
+          cp tools/oled-test.py "$name/tools/"
+          tar czf "$name.tar.gz" "$name"
+          sha256sum "$name.tar.gz" > "$name.tar.gz.sha256"
+          echo "newest glibc symbol needed: $(objdump -T target/release/apex-oled | grep -oE 'GLIBC_[0-9.]+' | sort -Vu | tail -1)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: apex-oled-*.tar.gz*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The notes are this tag's section of CHANGELOG.md.
+          awk -v v="## ${GITHUB_REF_NAME} " 'index($0, v) == 1 { on = 1; next } /^## / { on = 0 } on' CHANGELOG.md > notes.md
+          test -s notes.md
+          gh release create "$GITHUB_REF_NAME" --title "apex-oled ${GITHUB_REF_NAME}" --notes-file notes.md apex-oled-*.tar.gz*

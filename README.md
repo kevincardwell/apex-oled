@@ -1,6 +1,7 @@
 # apex-oled
 
 [![CI](https://github.com/kevincardwell/apex-oled/actions/workflows/ci.yml/badge.svg)](https://github.com/kevincardwell/apex-oled/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/kevincardwell/apex-oled)](https://github.com/kevincardwell/apex-oled/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Rust 1.88+](https://img.shields.io/badge/rust-1.88%2B-orange.svg)
 
@@ -49,7 +50,7 @@ Press your keybinding to step through them: clock → weather → system → spe
 - **A SteelSeries Apex 7** (USB ID `1038:1612`). The Apex 7 TKL, Apex Pro, Apex Pro TKL and Apex 5
   use the same screen protocol and are enabled too, but untested — see [Other keyboards](#other-keyboards).
 - **Linux with systemd** — the daemon is a user service and udev grants the access.
-- **Rust 1.88+** to build ([rustup.rs](https://rustup.rs)).
+- **x86_64 with glibc 2.34+** for the release binary, or **Rust 1.88+** to build it yourself ([rustup.rs](https://rustup.rs)).
 - Optional, each only for its own feature:
   - `curl` — weather
   - `cava` — the spectrum page
@@ -58,13 +59,24 @@ Press your keybinding to step through them: clock → weather → system → spe
 
 ## Install
 
+**Prebuilt** — download `apex-oled-<version>-x86_64-linux.tar.gz` from the
+[latest release](https://github.com/kevincardwell/apex-oled/releases/latest), then:
+
+```bash
+tar xzf apex-oled-*-x86_64-linux.tar.gz
+cd apex-oled-*-x86_64-linux
+./install.sh
+```
+
+**From source:**
+
 ```bash
 git clone https://github.com/kevincardwell/apex-oled
 cd apex-oled
 ./install.sh
 ```
 
-The script builds the release binary and installs three files:
+The script (building first, if it's a source checkout) installs three files:
 
 | File | What it is |
 |---|---|

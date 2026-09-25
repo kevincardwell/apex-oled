@@ -1,5 +1,6 @@
 #!/bin/bash
-# Builds apex-oled and installs it for the current user:
+# Installs apex-oled for the current user, building it first unless this is a
+# release tarball with the binary already next to this script:
 #   ~/.local/bin/apex-oled
 #   ~/.config/systemd/user/apex-oled.service
 #   /etc/udev/rules.d/71-apex-oled.rules   (the only step that needs sudo)
@@ -29,15 +30,19 @@ if [[ ${1:-} == --uninstall ]]; then
   exit 0
 fi
 
-if ! command -v cargo >/dev/null; then
-  echo "Building needs Rust 1.88 or newer: https://rustup.rs" >&2
-  exit 1
-fi
 [[ -x /usr/bin/curl ]] || echo "note: /usr/bin/curl not found, so there will be no weather"
 [[ -x /usr/bin/cava ]] || echo "note: /usr/bin/cava not found, so the spectrum page will stay flat"
 
-cargo build --release --locked
-install -Dm755 target/release/apex-oled "$bin"
+if [[ -f apex-oled && -x apex-oled ]]; then
+  built=./apex-oled # release tarball
+elif command -v cargo >/dev/null; then
+  cargo build --release --locked
+  built=target/release/apex-oled
+else
+  echo "Building needs Rust 1.88 or newer (https://rustup.rs), or use a release tarball." >&2
+  exit 1
+fi
+install -Dm755 "$built" "$bin"
 install -Dm644 systemd/apex-oled.service "$unit"
 systemctl --user daemon-reload
 
