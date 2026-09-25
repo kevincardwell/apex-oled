@@ -1,0 +1,25 @@
+[package]
+name = "apex-oled"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Clock, weather, system stats and an audio spectrum on the SteelSeries Apex 7 OLED, on Linux"
+license = "MIT"
+repository = "https://github.com/kevincardwell/apex-oled"
+readme = "README.md"
+keywords = ["steelseries", "oled", "keyboard", "hidraw", "linux"]
+categories = ["hardware-support", "command-line-utilities"]
+
+[dependencies]
+embedded-graphics = "0.8"
+libc = "0.2.189"
+serde_json = "1.0.151"
+u8g2-fonts = "0.8"
+wayland-client = "0.31.15"
+wayland-protocols = { version = "0.32.13", features = ["client", "staging"] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

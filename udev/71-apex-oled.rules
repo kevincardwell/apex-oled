@@ -1,0 +1,9 @@
+# SteelSeries Apex OLED keyboards: give the seat user access to USB interface 1 only.
+# Interface 0 carries raw keystrokes, so it stays root-only.
+# Numbered after 60-persistent-hidraw (which imports usb_id) and before
+# 73-seat-late (which applies the uaccess ACL).
+#
+# 1612 Apex 7 (tested) - 1618 Apex 7 TKL, 1610 Apex Pro, 1614 Apex Pro TKL, 161c Apex 5
+# (same frame format per apex-tux, untested here). Gen 3 models use a different protocol.
+SUBSYSTEM=="hidraw", ACTION!="remove", ENV{ID_VENDOR_ID}=="1038", ENV{ID_MODEL_ID}=="1612|1618|1610|1614|161c", ENV{ID_USB_INTERFACE_NUM}=="01", \
+  TAG+="uaccess", SYMLINK+="apex-oled", TAG+="systemd", ENV{SYSTEMD_USER_WANTS}+="apex-oled.service"

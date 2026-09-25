@@ -1,0 +1,10 @@
+# Started by udev (71-apex-oled.rules, SYSTEMD_USER_WANTS) when the keyboard appears,
+# stopped with it when it goes away.
+[Unit]
+Description=SteelSeries Apex 7 OLED
+BindsTo=dev-apex\x2doled.device
+After=dev-apex\x2doled.device
+
+[Service]
+ExecStart=%h/.local/bin/apex-oled
+Restart=on-failure

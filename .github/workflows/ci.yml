@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - run: cargo fmt --check
+      - run: cargo clippy --locked --all-targets -- -D warnings
+      - run: cargo test --locked
+      - run: cargo build --release --locked
+      - run: shellcheck install.sh tools/render-docs.sh
+      - run: udevadm verify udev/71-apex-oled.rules
+      - run: python3 -m py_compile tools/oled-test.py
